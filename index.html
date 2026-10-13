@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google 試算表隨機抽題測驗</title>
+    <!-- 引入 Papa Parse 用來解析 CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .quiz-card {
+            background: #fff;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .question-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #34495e;
+        }
+        .options label {
+            display: block;
+            padding: 8px 12px;
+            margin: 6px 0;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .options label:hover {
+            background: #e2e6ea;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result-container {
+            display: none;
+            text-align: center;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        #score {
+            font-size: 2rem;
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>隨機抽題測驗系統</h1>
+    
+    <div id="quiz-container">
+        <p style="text-align: center;">正在從 Google 試算表載入題庫，請稍候...</p>
+    </div>
+
+    <button id="submit-btn" style="display: none;" onclick="submitQuiz()">交卷看成績</button>
+
+    <div id="result-container">
+        <h2>測驗結算</h2>
+        <p>你的得分是：</p>
+        <div id="score">0 / 5</div>
+        <p id="feedback" style="margin-top: 15px; font-weight: 500;"></p>
+        <button onclick="location.reload()" style="margin-top: 20px;">再次測驗 (重新抽題)</button>
+    </div>
+
+    <script>
+        // 已更新為你提供的 Google 試算表 CSV 發布網址
+        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSOS-l532cEmQC3yg-ORAZJ4omckiO1wRuAjsbtyArpev7mOoBJWvoFHG3t8C05uQyX3JoHgESQ_Eei/pub?gid=1864727711&single=true&output=csv";
+
+        let allQuestions = [];
+        let selectedQuestions = [];
+
+        // 頁面載入時從 Google 試算表抓取 CSV
+        window.addEventListener('DOMContentLoaded', () => {
+            Papa.parse(csvUrl, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    allQuestions = results.data;
+                    if (allQuestions.length < 5) {
+                        document.getElementById('quiz-container').innerHTML = 
+                            `<p style="color: red; text-align: center;">題庫數量不足 5 題，請檢查 Google 試算表內容！</p>`;
+                        return;
+                    }
+                    initQuiz();
+                },
+                error: function(err) {
+                    document.getElementById('quiz-container').innerHTML = 
+                        `<p style="color: red; text-align: center;">讀取 Google 試算表失敗，請確認網路連線狀態或 CORS 限制。</p>`;
+                }
+            });
+        });
+
+        // 隨機抽 5 題並渲染畫面
+        function initQuiz() {
+            let shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+            selectedQuestions = shuffled.slice(0, 5);
+
+            let container = document.getElementById('quiz-container');
+            container.innerHTML = "";
+
+            selectedQuestions.forEach((q, index) => {
+                let card = document.createElement('div');
+                card.className = 'quiz-card';
+                card.innerHTML = `
+                    <div class="question-title">第 ${index + 1} 題：${q.question}</div>
+                    <div class="options">
+                        <label><input type="radio" name="q${index}" value="A"> A. ${q.optA}</label>
+                        <label><input type="radio" name="q${index}" value="B"> B. ${q.optB}</label>
+                        <label><input type="radio" name="q${index}" value="C"> C. ${q.optC}</label>
+                        <label><input type="radio" name="q${index}" value="D"> D. ${q.optD}</label>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('submit-btn').style.display = 'block';
+        }
+
+        // 計算分數
+        function submitQuiz() {
+            let score = 0;
+            let unanswered = false;
+
+            selectedQuestions.forEach((q, index) => {
+                let radios = document.getElementsByName(`q${index}`);
+                let userChoice = null;
+                for (let r of radios) {
+                    if (r.checked) {
+                        userChoice = r.value;
+                        break;
+                    }
+                }
+
+                if (!userChoice) {
+                    unanswered = true;
+                } else if (userChoice.trim().toUpperCase() === q.answer.trim().toUpperCase()) {
+                    score++;
+                }
+            });
+
+            if (unanswered) {
+                if (!confirm("還有題目尚未作答，確定要直接交卷嗎？")) {
+                    return;
+                }
+            }
+
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('submit-btn').style.display = 'none';
+            
+            let resultContainer = document.getElementById('result-container');
+            resultContainer.style.display = 'block';
+            document.getElementById('score').innerText = `${score} / 5 分`;
+
+            let feedback = document.getElementById('feedback');
+            if (score === 5) {
+                feedback.innerText = "太神啦！全部答對！🎉";
+            } else if (score >= 3) {
+                feedback.innerText = "表現不錯，再接再厲！👍";
+            } else {
+                feedback.innerText = "還要多加加油喔！💪";
+            }
+        }
+    </script>
+</body>
+</html>

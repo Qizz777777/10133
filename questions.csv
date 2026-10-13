@@ -1,0 +1,16 @@
+question,optA,optB,optC,optD,answer
+"下列何者是 JavaScript 的變數宣告關鍵字之一？","int","var","float","double",B
+"HTML 是用來做什麼的？","網頁結構與內容","伺服器端運算","資料庫管理","作業系統設定",A
+"CSS 的主要功能為何？","控制網頁樣式與排版","編寫演算法","處理 HTTP 請求","執行資料加密",A
+"HTTP 通訊協定預設的 Port（連接埠）通常是？","21","80","443","3306",B
+"下列哪一個不是程式語言？","Python","HTML","Java","C++",B
+"在網頁設計中，DOM 的全名是什麼？","Document Object Model","Data Object Management","Digital Online Method","Document Oriented Media",A
+"Git 主要是用來做什麼的？","版本控制","繪製圖表","病毒掃描","影片剪輯",A
+"SQL 是用來操作什麼的語言？","資料庫","作業系統","硬體設備","網路封包",A
+"下列哪一個不是關聯式資料庫？","MySQL","MongoDB","PostgreSQL","SQLite",B
+"在 JavaScript 中，用來輸出訊息到主控台的指令是？","print()","console.log()","echo()","printf()",B
+"下列何者代表超文字傳輸安全協定？","HTTP","FTP","HTTPS","SMTP",C
+"Bootstrap 是一個主流的什麼工具？","CSS 前端框架","後端伺服器軟體","資料庫管理系統","作業系統核心",A
+"CSS 中若想要設定文字顏色，應使用下列哪一個屬性？","color","background-color","font-size","text-align",A
+"在 JavaScript 中，陣列（Array）的索引值通常從多少開始計算？","0","1","-1","依瀏覽器而定",A
+"下列哪一個標籤可用於在 HTML 網頁中插入圖片？","<img>","<pic>","<image>","<src>",A
